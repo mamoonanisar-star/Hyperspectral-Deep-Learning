@@ -422,6 +422,15 @@ class AdaptedTransferNet(nn.Module):
     """
     Wraps a pre-trained backbone (trained on source bands) with a
     band-projection layer and a new head for the target dataset.
+
+    The 1×1 conv `band_proj` maps the *target* dataset's spectral bands to
+    the same number of bands expected by the pre-trained backbone (nb_target).
+    Because both pre-training (via SourceModel.band_proj) and fine-tuning use
+    nb_target as the backbone's input width, the backbone weights are fully
+    reusable regardless of how many bands the original source dataset had.
+    The projection here is therefore nb_target → nb_target (identity-shaped),
+    and its role is to act as a learned, trainable spectral re-weighting that
+    bridges any remaining distributional gap between source and target domains.
     """
     def __init__(
         self,
@@ -431,6 +440,8 @@ class AdaptedTransferNet(nn.Module):
         num_classes_target: int,
     ):
         super().__init__()
+        # nb_target → nb_target: the backbone already expects nb_target input
+        # channels (SourceModel projected nb_source → nb_target during pre-training).
         self.band_proj = nn.Conv2d(nb_target, nb_target, 1, bias=False)
         self.backbone  = pretrained_backbone
         self.head      = ClassifierHead(pretrained_backbone.out_dim, num_classes_target)

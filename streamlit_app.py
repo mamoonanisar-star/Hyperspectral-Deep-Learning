@@ -485,9 +485,7 @@ def run_streamlit_app():
             scale = 80.0 / max(H, W)
             H2, W2 = max(1, int(H * scale)), max(1, int(W * scale))
             from PIL import Image as _PIL
-            data_small = np.array(
-                _PIL.fromarray(data_norm[:, :, 0]).resize((W2, H2), _PIL.BILINEAR)
-            )[:, :, None]
+            # Resize all bands at once (vectorised per band)
             data_small = np.concatenate([
                 np.array(_PIL.fromarray(data_norm[:, :, b]).resize((W2, H2), _PIL.BILINEAR))[:, :, None]
                 for b in range(data_norm.shape[-1])
