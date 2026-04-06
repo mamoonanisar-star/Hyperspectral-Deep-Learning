@@ -1,0 +1,3 @@
+dataset,model,OA,AA,Kappa,train_time_s
+indian_pines,resnet,0.996671,0.99666,0.996449,53.5
+indian_pines,fcn,1.0,1.0,1.0,45.3
